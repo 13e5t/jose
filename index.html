@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JWK Crypto Operations</title>
+    <link rel="stylesheet" href="styles.css">
+    <script type="module">
+        async function loadJose() {
+            try {
+                // Try Skypack first
+                const jose = await import('https://cdn.skypack.dev/jose@5');
+                window.jose = jose;
+                console.log('JOSE loaded from Skypack');
+            } catch (error) {
+                console.warn('Skypack failed, trying jsDelivr:', error);
+                try {
+                    // Fallback to jsDelivr
+                    const jose = await import('https://cdn.jsdelivr.net/npm/jose@5/+esm');
+                    window.jose = jose;
+                    console.log('JOSE loaded from jsDelivr');
+                } catch (error2) {
+                    console.warn('jsDelivr failed, trying unpkg:', error2);
+                    try {
+                        // Fallback to unpkg
+                        const jose = await import('https://unpkg.com/jose@5/dist/browser/index.js');
+                        window.jose = jose;
+                        console.log('JOSE loaded from unpkg');
+                    } catch (error3) {
+                        console.error('All CDNs failed:', error3);
+                        window.joseLoadError = error3;
+                    }
+                }
+            }
+        }
+        
+        loadJose();
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>JWK Crypto Operations</h1>
+        
+        <div class="section">
+            <h2>JWK Management</h2>
+            
+            <!-- JWK Tabs -->
+            <div class="jwk-tabs-container">
+                <div class="jwk-tabs" id="jwkTabs">
+                    <div class="jwk-tab active" data-tab-id="default">
+                        <span class="jwk-tab-name" contenteditable="true">Default JWK</span>
+                        <button class="jwk-tab-close" title="Close tab">×</button>
+                    </div>
+                    <button class="jwk-add-tab" id="addJwkTab" title="Add new JWK tab">+</button>
+                </div>
+            </div>
+
+            <!-- JWK Tab Content -->
+            <div class="jwk-tab-content active" id="jwk-default">
+                <div class="button-group">
+                    <button class="generate-jwk btn">Generate JWK Set</button>
+                    <button class="clear-jwk btn">Clear JWK Set</button>
+                </div>
+                <div class="form-group">
+                    <label>JWK Set (JSON Web Key Set):</label>
+                    <textarea class="jwk-input" rows="12" placeholder="Enter JWK Set JSON or generate one using the button above"></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>JWT Operations</h2>
+            <div class="jwt-active-jwk">
+                <span class="jwt-jwk-indicator">Using JWK: </span>
+                <span class="jwt-active-jwk-name" id="activeJwkName">Default JWK</span>
+                <span class="jwt-jwk-status" id="jwkStatus">No keys loaded</span>
+            </div>
+            <div class="tabs">
+                <button class="tab-button active" data-tab="sign">Sign JWT</button>
+                <button class="tab-button" data-tab="verify">Verify JWT</button>
+                <button class="tab-button" data-tab="encrypt">Encrypt JWT</button>
+                <button class="tab-button" data-tab="decrypt">Decrypt JWT</button>
+            </div>
+
+            <div id="sign" class="tab-content active">
+                <h3>Sign JWT</h3>
+                <div class="form-group">
+                    <label for="signPayload">Payload (JSON):</label>
+                    <textarea id="signPayload" rows="4" placeholder='{"sub": "1234567890", "name": "John Doe", "iat": 1516239022}'></textarea>
+                </div>
+                <button id="signJwt" class="btn">Sign JWT</button>
+                <div class="form-group">
+                    <label for="signedJwt">Signed JWT:</label>
+                    <textarea id="signedJwt" rows="4" readonly></textarea>
+                </div>
+            </div>
+
+            <div id="verify" class="tab-content">
+                <h3>Verify JWT</h3>
+                <div class="form-group">
+                    <label for="verifyJwt">JWT to Verify:</label>
+                    <textarea id="verifyJwt" rows="4" placeholder="Enter JWT to verify"></textarea>
+                </div>
+                <button id="verifyJwtBtn" class="btn">Verify JWT</button>
+                <div class="form-group">
+                    <label for="verifyResult">Verification Result:</label>
+                    <textarea id="verifyResult" rows="4" readonly></textarea>
+                </div>
+            </div>
+
+            <div id="encrypt" class="tab-content">
+                <h3>Encrypt JWT</h3>
+                <div class="form-group">
+                    <label for="encryptPayload">Payload (JSON or Plain Text):</label>
+                    <textarea id="encryptPayload" rows="4" placeholder='JSON: {"sub": "1234567890", "name": "John Doe"} or Plain text: Hello World!'></textarea>
+                </div>
+                <button id="encryptJwt" class="btn">Encrypt JWT</button>
+                <div class="form-group">
+                    <label for="encryptedJwt">Encrypted JWT:</label>
+                    <textarea id="encryptedJwt" rows="4" readonly></textarea>
+                </div>
+            </div>
+
+            <div id="decrypt" class="tab-content">
+                <h3>Decrypt JWT</h3>
+                <div class="form-group">
+                    <label for="decryptJwt">Encrypted JWT:</label>
+                    <textarea id="decryptJwt" rows="4" placeholder="Enter encrypted JWT"></textarea>
+                </div>
+                <button id="decryptJwtBtn" class="btn">Decrypt JWT</button>
+                <div class="form-group">
+                    <label for="decryptResult">Decrypted Payload:</label>
+                    <textarea id="decryptResult" rows="4" readonly></textarea>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Error Messages</h2>
+            <div id="errorMessages" class="error-container"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
