@@ -34,6 +34,7 @@ jose/
 ├── app.js             # JavaScript application logic with tab management
 ├── netlify.toml       # Netlify deployment configuration
 ├── vercel.json        # Vercel deployment configuration
+├── CLAUDE.md          # Claude Code development guidance
 └── README.md          # This documentation
 ```
 
