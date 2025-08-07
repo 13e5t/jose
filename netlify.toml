@@ -42,6 +42,5 @@
   from = "/*"
   to = "/index.html"
   status = 200
-  conditions = {Role = ["admin"]}
 
 # Remove the old API redirect as this is a client-side only app
