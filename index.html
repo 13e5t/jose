@@ -4,7 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JWK Crypto Operations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="styles.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'mono': ['Consolas', 'Monaco', 'Courier New', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
     <script type="module">
         async function loadJose() {
             try {
@@ -37,37 +49,58 @@
         loadJose();
     </script>
 </head>
-<body>
-    <div class="container">
-        <h1>JWK Crypto Operations</h1>
+<body class="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
+    <div class="max-w-6xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        <div class="text-center mb-12">
+            <h1 class="text-4xl sm:text-5xl font-bold text-slate-800 mb-4">JWK Crypto Operations</h1>
+            <p class="text-xl text-slate-600">Generate, manage, and test JSON Web Keys with ease</p>
+        </div>
         
-        <div class="section">
-            <h2>JWK Management</h2>
+        <div class="bg-white rounded-xl shadow-lg p-6 sm:p-8 mb-8 border border-slate-200">
+            <div class="flex items-center mb-6">
+                <div class="w-2 h-8 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full mr-4"></div>
+                <h2 class="text-2xl font-semibold text-slate-800">JWK Management</h2>
+            </div>
             
             <!-- JWK Tabs -->
-            <div class="jwk-tabs-container">
-                <div class="jwk-tabs" id="jwkTabs">
-                    <div class="jwk-tab active" data-tab-id="default">
-                        <span class="jwk-tab-name" contenteditable="true">Default JWK</span>
-                        <button class="jwk-tab-close" title="Close tab">×</button>
+            <div class="mb-6">
+                <div class="flex flex-wrap items-center gap-2 mb-6" id="jwkTabs">
+                    <div class="flex items-center bg-blue-500 text-white px-4 py-2 rounded-lg shadow-sm hover:bg-blue-600 transition-colors cursor-pointer min-w-[140px] active" data-tab-id="default">
+                        <span class="jwk-tab-name flex-1 bg-transparent border-none outline-none text-white placeholder-blue-200" contenteditable="true">Default JWK</span>
+                        <button class="jwk-tab-close ml-2 w-5 h-5 flex items-center justify-center rounded-full hover:bg-blue-400 transition-colors text-white" title="Close tab">×</button>
                     </div>
-                    <button class="jwk-add-tab" id="addJwkTab" title="Add new JWK tab">+</button>
+                    <button class="jwk-add-tab w-8 h-8 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-full flex items-center justify-center font-bold transition-all hover:scale-105" id="addJwkTab" title="Add new JWK tab">+</button>
                 </div>
             </div>
 
             <!-- JWK Tab Content -->
-            <div class="jwk-tab-content active" id="jwk-default">
-                <div class="button-group">
-                    <button class="generate-jwk btn">Generate JWK Set</button>
-                    <button class="beautify-jwk btn">Beautify</button>
-                    <button class="clear-jwk btn">Clear JWK Set</button>
+            <div class="jwk-tab-content block" id="jwk-default">
+                <div class="flex flex-wrap gap-3 mb-6">
+                    <button class="generate-jwk bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                        </svg>
+                        Generate JWK Set
+                    </button>
+                    <button class="beautify-jwk bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"></path>
+                        </svg>
+                        Beautify
+                    </button>
+                    <button class="clear-jwk bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-3 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                        </svg>
+                        Clear JWK Set
+                    </button>
                 </div>
-                <div class="form-group">
-                    <label>JWK Set (JSON Web Key Set):</label>
-                    <div class="textarea-header">
-                        <span class="textarea-note">Paste your custom JWK Set JSON below</span>
+                <div class="space-y-4">
+                    <label class="block text-sm font-semibold text-slate-700">JWK Set (JSON Web Key Set)</label>
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-3 rounded-r-lg mb-3">
+                        <p class="text-sm text-blue-700 italic">Paste your custom JWK Set JSON below or generate one using the button above</p>
                     </div>
-                    <textarea class="jwk-input" rows="12" placeholder='Paste your custom JWK Set here, for example:
+                    <textarea class="jwk-input w-full p-4 border-2 border-slate-300 rounded-lg font-mono text-sm bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 resize-y" rows="12" placeholder='Paste your custom JWK Set here, for example:
 {
   "keys": [
     {
@@ -85,76 +118,109 @@
             </div>
         </div>
 
-        <div class="section">
-            <h2>JWT Operations</h2>
-            <div class="jwt-active-jwk">
-                <span class="jwt-jwk-indicator">Using JWK: </span>
-                <span class="jwt-active-jwk-name" id="activeJwkName">Default JWK</span>
-                <span class="jwt-jwk-status" id="jwkStatus">No keys loaded</span>
+        <div class="bg-white rounded-xl shadow-lg p-6 sm:p-8 mb-8 border border-slate-200">
+            <div class="flex items-center mb-6">
+                <div class="w-2 h-8 bg-gradient-to-b from-indigo-500 to-indigo-600 rounded-full mr-4"></div>
+                <h2 class="text-2xl font-semibold text-slate-800">JWT Operations</h2>
             </div>
-            <div class="tabs">
-                <button class="tab-button active" data-tab="sign">Sign JWT</button>
-                <button class="tab-button" data-tab="verify">Verify JWT</button>
-                <button class="tab-button" data-tab="encrypt">Encrypt JWT</button>
-                <button class="tab-button" data-tab="decrypt">Decrypt JWT</button>
+            <div class="bg-slate-50 border border-slate-200 rounded-lg p-4 mb-6 flex flex-wrap items-center gap-3">
+                <span class="text-slate-600 font-medium">Using JWK:</span>
+                <span class="jwt-active-jwk-name bg-indigo-500 text-white px-3 py-1 rounded-full text-sm font-medium" id="activeJwkName">Default JWK</span>
+                <span class="jwt-jwk-status text-slate-500 italic ml-auto" id="jwkStatus">No keys loaded</span>
             </div>
-
-            <div id="sign" class="tab-content active">
-                <h3>Sign JWT</h3>
-                <div class="form-group">
-                    <label for="signPayload">Payload (JSON):</label>
-                    <textarea id="signPayload" rows="4" placeholder='{"sub": "1234567890", "name": "John Doe", "iat": 1516239022}'></textarea>
-                </div>
-                <button id="signJwt" class="btn">Sign JWT</button>
-                <div class="form-group">
-                    <label for="signedJwt">Signed JWT:</label>
-                    <textarea id="signedJwt" rows="4" readonly></textarea>
-                </div>
+            <div class="flex flex-wrap gap-2 mb-6 border-b border-slate-200 pb-4">
+                <button class="tab-button bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium transition-all hover:bg-indigo-600 active" data-tab="sign">Sign JWT</button>
+                <button class="tab-button bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-medium transition-all hover:bg-slate-300" data-tab="verify">Verify JWT</button>
+                <button class="tab-button bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-medium transition-all hover:bg-slate-300" data-tab="encrypt">Encrypt JWT</button>
+                <button class="tab-button bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-medium transition-all hover:bg-slate-300" data-tab="decrypt">Decrypt JWT</button>
             </div>
 
-            <div id="verify" class="tab-content">
-                <h3>Verify JWT</h3>
-                <div class="form-group">
-                    <label for="verifyJwt">JWT to Verify:</label>
-                    <textarea id="verifyJwt" rows="4" placeholder="Enter JWT to verify"></textarea>
-                </div>
-                <button id="verifyJwtBtn" class="btn">Verify JWT</button>
-                <div class="form-group">
-                    <label for="verifyResult">Verification Result:</label>
-                    <textarea id="verifyResult" rows="4" readonly></textarea>
+            <div id="sign" class="tab-content block">
+                <div class="space-y-6">
+                    <div>
+                        <label for="signPayload" class="block text-sm font-semibold text-slate-700 mb-2">Payload (JSON)</label>
+                        <textarea id="signPayload" rows="4" class="w-full p-4 border-2 border-slate-300 rounded-lg font-mono text-sm bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200" placeholder='{"sub": "1234567890", "name": "John Doe", "iat": 1516239022}'></textarea>
+                    </div>
+                    <button id="signJwt" class="bg-gradient-to-r from-indigo-500 to-indigo-600 hover:from-indigo-600 hover:to-indigo-700 text-white px-8 py-3 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
+                        Sign JWT
+                    </button>
+                    <div>
+                        <label for="signedJwt" class="block text-sm font-semibold text-slate-700 mb-2">Signed JWT</label>
+                        <textarea id="signedJwt" rows="4" readonly class="w-full p-4 border-2 border-slate-300 rounded-lg font-mono text-sm bg-slate-100 resize-none"></textarea>
+                    </div>
                 </div>
             </div>
 
-            <div id="encrypt" class="tab-content">
-                <h3>Encrypt JWT</h3>
-                <div class="form-group">
-                    <label for="encryptPayload">Payload (JSON or Plain Text):</label>
-                    <textarea id="encryptPayload" rows="4" placeholder='JSON: {"sub": "1234567890", "name": "John Doe"} or Plain text: Hello World!'></textarea>
-                </div>
-                <button id="encryptJwt" class="btn">Encrypt JWT</button>
-                <div class="form-group">
-                    <label for="encryptedJwt">Encrypted JWT:</label>
-                    <textarea id="encryptedJwt" rows="4" readonly></textarea>
+            <div id="verify" class="tab-content hidden">
+                <div class="space-y-6">
+                    <div>
+                        <label for="verifyJwt" class="block text-sm font-semibold text-slate-700 mb-2">JWT to Verify</label>
+                        <textarea id="verifyJwt" rows="4" class="w-full p-4 border-2 border-slate-300 rounded-lg font-mono text-sm bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200" placeholder="Enter JWT to verify"></textarea>
+                    </div>
+                    <button id="verifyJwtBtn" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-8 py-3 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                        Verify JWT
+                    </button>
+                    <div>
+                        <label for="verifyResult" class="block text-sm font-semibold text-slate-700 mb-2">Verification Result</label>
+                        <textarea id="verifyResult" rows="4" readonly class="w-full p-4 border-2 border-slate-300 rounded-lg font-mono text-sm bg-slate-100 resize-none"></textarea>
+                    </div>
                 </div>
             </div>
 
-            <div id="decrypt" class="tab-content">
-                <h3>Decrypt JWT</h3>
-                <div class="form-group">
-                    <label for="decryptJwt">Encrypted JWT:</label>
-                    <textarea id="decryptJwt" rows="4" placeholder="Enter encrypted JWT"></textarea>
+            <div id="encrypt" class="tab-content hidden">
+                <div class="space-y-6">
+                    <div>
+                        <label for="encryptPayload" class="block text-sm font-semibold text-slate-700 mb-2">Payload (JSON or Plain Text)</label>
+                        <textarea id="encryptPayload" rows="4" class="w-full p-4 border-2 border-slate-300 rounded-lg font-mono text-sm bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200" placeholder='JSON: {"sub": "1234567890", "name": "John Doe"} or Plain text: Hello World!'></textarea>
+                    </div>
+                    <button id="encryptJwt" class="bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white px-8 py-3 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        Encrypt JWT
+                    </button>
+                    <div>
+                        <label for="encryptedJwt" class="block text-sm font-semibold text-slate-700 mb-2">Encrypted JWT</label>
+                        <textarea id="encryptedJwt" rows="4" readonly class="w-full p-4 border-2 border-slate-300 rounded-lg font-mono text-sm bg-slate-100 resize-none"></textarea>
+                    </div>
                 </div>
-                <button id="decryptJwtBtn" class="btn">Decrypt JWT</button>
-                <div class="form-group">
-                    <label for="decryptResult">Decrypted Payload:</label>
-                    <textarea id="decryptResult" rows="4" readonly></textarea>
+            </div>
+
+            <div id="decrypt" class="tab-content hidden">
+                <div class="space-y-6">
+                    <div>
+                        <label for="decryptJwt" class="block text-sm font-semibold text-slate-700 mb-2">Encrypted JWT</label>
+                        <textarea id="decryptJwt" rows="4" class="w-full p-4 border-2 border-slate-300 rounded-lg font-mono text-sm bg-slate-50 focus:bg-white focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 transition-all duration-200" placeholder="Enter encrypted JWT"></textarea>
+                    </div>
+                    <button id="decryptJwtBtn" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-8 py-3 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"></path>
+                        </svg>
+                        Decrypt JWT
+                    </button>
+                    <div>
+                        <label for="decryptResult" class="block text-sm font-semibold text-slate-700 mb-2">Decrypted Payload</label>
+                        <textarea id="decryptResult" rows="4" readonly class="w-full p-4 border-2 border-slate-300 rounded-lg font-mono text-sm bg-slate-100 resize-none"></textarea>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="section">
-            <h2>Error Messages</h2>
-            <div id="errorMessages" class="error-container"></div>
+        <div class="bg-white rounded-xl shadow-lg p-6 sm:p-8 border border-slate-200">
+            <div class="flex items-center mb-6">
+                <div class="w-2 h-8 bg-gradient-to-b from-red-500 to-red-600 rounded-full mr-4"></div>
+                <h2 class="text-2xl font-semibold text-slate-800">Messages</h2>
+            </div>
+            <div id="errorMessages" class="min-h-[60px] bg-slate-50 border-2 border-dashed border-slate-300 rounded-lg p-4 text-slate-500 font-mono text-sm flex items-center justify-center">
+                Messages will appear here...
+            </div>
         </div>
     </div>
 

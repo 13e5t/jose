@@ -132,11 +132,15 @@ class JWKCryptoApp {
             button.addEventListener('click', () => {
                 const targetTab = button.getAttribute('data-tab');
                 
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                tabContents.forEach(content => content.classList.remove('active'));
+                tabButtons.forEach(btn => {
+                    btn.classList.remove('bg-indigo-500', 'text-white');
+                    btn.classList.add('bg-slate-200', 'text-slate-700');
+                });
+                tabContents.forEach(content => content.classList.replace('block', 'hidden'));
                 
-                button.classList.add('active');
-                document.getElementById(targetTab).classList.add('active');
+                button.classList.remove('bg-slate-200', 'text-slate-700');
+                button.classList.add('bg-indigo-500', 'text-white');
+                document.getElementById(targetTab).classList.replace('hidden', 'block');
             });
         });
     }
@@ -176,28 +180,44 @@ class JWKCryptoApp {
         const tabElement = document.createElement('div');
         tabElement.className = 'jwk-tab';
         tabElement.setAttribute('data-tab-id', tabId);
+        tabElement.className = 'flex items-center bg-slate-200 hover:bg-slate-300 text-slate-700 px-4 py-2 rounded-lg shadow-sm transition-colors cursor-pointer min-w-[140px]';
         tabElement.innerHTML = `
-            <span class="jwk-tab-name" contenteditable="true">${tabName}</span>
-            <button class="jwk-tab-close" title="Close tab">×</button>
+            <span class="jwk-tab-name flex-1 bg-transparent border-none outline-none text-slate-700" contenteditable="true">${tabName}</span>
+            <button class="jwk-tab-close ml-2 w-5 h-5 flex items-center justify-center rounded-full hover:bg-slate-400 transition-colors text-slate-600" title="Close tab">×</button>
         `;
 
         tabsContainer.insertBefore(tabElement, addButton);
 
         const contentElement = document.createElement('div');
-        contentElement.className = 'jwk-tab-content';
+        contentElement.className = 'jwk-tab-content hidden';
         contentElement.id = `jwk-${tabId}`;
         contentElement.innerHTML = `
-            <div class="button-group">
-                <button class="generate-jwk btn">Generate JWK Set</button>
-                <button class="beautify-jwk btn">Beautify</button>
-                <button class="clear-jwk btn">Clear JWK Set</button>
+            <div class="flex flex-wrap gap-3 mb-6">
+                <button class="generate-jwk bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white px-6 py-3 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    Generate JWK Set
+                </button>
+                <button class="beautify-jwk bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zM21 5a2 2 0 00-2-2h-4a2 2 0 00-2 2v12a4 4 0 004 4h4a2 2 0 002-2V5z"></path>
+                    </svg>
+                    Beautify
+                </button>
+                <button class="clear-jwk bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-3 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                    Clear JWK Set
+                </button>
             </div>
-            <div class="form-group">
-                <label>JWK Set (JSON Web Key Set):</label>
-                <div class="textarea-header">
-                    <span class="textarea-note">Paste your custom JWK Set JSON below or generate one using the button above</span>
+            <div class="space-y-4">
+                <label class="block text-sm font-semibold text-slate-700">JWK Set (JSON Web Key Set)</label>
+                <div class="bg-blue-50 border-l-4 border-blue-400 p-3 rounded-r-lg mb-3">
+                    <p class="text-sm text-blue-700 italic">Paste your custom JWK Set JSON below or generate one using the button above</p>
                 </div>
-                <textarea class="jwk-input" rows="12" placeholder='Paste your custom JWK Set here, for example:
+                <textarea class="jwk-input w-full p-4 border-2 border-slate-300 rounded-lg font-mono text-sm bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-200 resize-y" rows="12" placeholder='Paste your custom JWK Set here, for example:
 {
   "keys": [
     {
@@ -226,14 +246,28 @@ class JWKCryptoApp {
 
         this.activeTabId = tabId;
 
-        document.querySelectorAll('.jwk-tab').forEach(tab => tab.classList.remove('active'));
-        document.querySelectorAll('.jwk-tab-content').forEach(content => content.classList.remove('active'));
+        document.querySelectorAll('.jwk-tab').forEach(tab => {
+            tab.classList.remove('bg-blue-500', 'text-white');
+            tab.classList.add('bg-slate-200', 'hover:bg-slate-300', 'text-slate-700');
+            tab.querySelector('.jwk-tab-name').classList.remove('text-white');
+            tab.querySelector('.jwk-tab-name').classList.add('text-slate-700');
+            tab.querySelector('.jwk-tab-close').classList.remove('text-white', 'hover:bg-blue-400');
+            tab.querySelector('.jwk-tab-close').classList.add('text-slate-600', 'hover:bg-slate-400');
+        });
+        document.querySelectorAll('.jwk-tab-content').forEach(content => content.classList.replace('block', 'hidden'));
 
         const targetTab = document.querySelector(`[data-tab-id="${tabId}"]`);
         const targetContent = document.getElementById(`jwk-${tabId}`);
 
-        if (targetTab) targetTab.classList.add('active');
-        if (targetContent) targetContent.classList.add('active');
+        if (targetTab) {
+            targetTab.classList.remove('bg-slate-200', 'hover:bg-slate-300', 'text-slate-700');
+            targetTab.classList.add('bg-blue-500', 'hover:bg-blue-600', 'text-white');
+            targetTab.querySelector('.jwk-tab-name').classList.remove('text-slate-700');
+            targetTab.querySelector('.jwk-tab-name').classList.add('text-white');
+            targetTab.querySelector('.jwk-tab-close').classList.remove('text-slate-600', 'hover:bg-slate-400');
+            targetTab.querySelector('.jwk-tab-close').classList.add('text-white', 'hover:bg-blue-400');
+        }
+        if (targetContent) targetContent.classList.replace('hidden', 'block');
         
         // Restore the new tab's JWT operation data
         this.restoreJWTOperationData();
@@ -500,11 +534,11 @@ class JWKCryptoApp {
         if (signButton) {
             if (hasSigningPrivateKey) {
                 signButton.disabled = false;
-                signButton.classList.remove('btn-disabled');
+                signButton.classList.remove('opacity-50', 'cursor-not-allowed');
                 signButton.title = '';
             } else {
                 signButton.disabled = true;
-                signButton.classList.add('btn-disabled');
+                signButton.classList.add('opacity-50', 'cursor-not-allowed');
                 signButton.title = 'Signing requires a private key. Only verify operation is available with public keys.';
             }
         }
@@ -513,11 +547,11 @@ class JWKCryptoApp {
         if (decryptButton) {
             if (hasEncryptionPrivateKey) {
                 decryptButton.disabled = false;
-                decryptButton.classList.remove('btn-disabled');
+                decryptButton.classList.remove('opacity-50', 'cursor-not-allowed');
                 decryptButton.title = '';
             } else {
                 decryptButton.disabled = true;
-                decryptButton.classList.add('btn-disabled');
+                decryptButton.classList.add('opacity-50', 'cursor-not-allowed');
                 decryptButton.title = 'Decryption requires a private key. Only encrypt operation is available with public keys.';
             }
         }
@@ -795,12 +829,27 @@ class JWKCryptoApp {
             let payload;
             let isJsonPayload = false;
 
-            // Try to parse as JSON first
+            // More robust JSON detection
             try {
-                payload = JSON.parse(payloadText);
-                isJsonPayload = true;
+                // First check if it looks like JSON (starts with { or [)
+                const trimmed = payloadText.trim();
+                if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+                    payload = JSON.parse(payloadText);
+                    // Additional validation - make sure it's actually an object or array
+                    if (typeof payload === 'object' && payload !== null) {
+                        isJsonPayload = true;
+                    } else {
+                        // If it parsed to a primitive, treat as plain text
+                        payload = payloadText;
+                        isJsonPayload = false;
+                    }
+                } else {
+                    // Doesn't look like JSON, treat as plain text
+                    payload = payloadText;
+                    isJsonPayload = false;
+                }
             } catch (jsonError) {
-                // If JSON parsing fails, treat as plain text - encrypt directly
+                // If JSON parsing fails, treat as plain text
                 payload = payloadText;
                 isJsonPayload = false;
             }
@@ -823,7 +872,7 @@ class JWKCryptoApp {
                     })
                     .encrypt(currentTab.encryptionPublicKey);
             } else {
-                // For plain text, use CompactEncrypt to get a compact JWE string
+                // For plain text, use CompactEncrypt to avoid JWT claims validation
                 const encoder = new TextEncoder();
                 const plaintext = encoder.encode(payload);
                 jwt = await new jose.CompactEncrypt(plaintext)
@@ -882,16 +931,8 @@ class JWKCryptoApp {
                 // First try to decrypt as a JWT (for JSON payloads)
                 const jwtResult = await jose.jwtDecrypt(jwtText, currentTab.encryptionPrivateKey);
                 protectedHeader = jwtResult.protectedHeader;
-                
-                if (jwtResult.payload.data && Object.keys(jwtResult.payload).length === 1) {
-                    // This looks like a plain text that was wrapped in { data: "..." }
-                    displayResult = jwtResult.payload.data;
-                    messageType = 'plain text (legacy format)';
-                } else {
-                    // This is actual JSON payload
-                    displayResult = jwtResult.payload;
-                    messageType = 'JSON';
-                }
+                displayResult = jwtResult.payload;
+                messageType = 'JSON';
             } catch (jwtError) {
                 try {
                     // Try to decrypt as compact JWE (for plain text)
@@ -901,7 +942,7 @@ class JWKCryptoApp {
                     displayResult = decoder.decode(plaintext);
                     messageType = 'plain text';
                 } catch (compactError) {
-                    throw new Error(`Failed to decrypt as both JWT and compact JWE: ${jwtError.message} | ${compactError.message}`);
+                    throw new Error(`Failed to decrypt: Unable to decrypt as either JWT (${jwtError.message}) or JWE (${compactError.message})`);
                 }
             }
 
@@ -937,34 +978,74 @@ class JWKCryptoApp {
 
     showError(message) {
         const errorContainer = document.getElementById('errorMessages');
+        errorContainer.innerHTML = '';
         const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.textContent = `Error: ${message}`;
+        errorDiv.className = 'bg-red-50 border-l-4 border-red-400 p-4 rounded-r-lg flex items-start gap-3';
+        errorDiv.innerHTML = `
+            <svg class="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <div>
+                <p class="text-sm font-medium text-red-800">Error</p>
+                <p class="text-sm text-red-700">${message}</p>
+            </div>
+        `;
         errorContainer.appendChild(errorDiv);
         
         setTimeout(() => {
             if (errorDiv.parentNode) {
                 errorDiv.parentNode.removeChild(errorDiv);
+                if (errorContainer.children.length === 0) {
+                    errorContainer.innerHTML = '<p class="text-slate-500 font-mono text-sm flex items-center justify-center">Messages will appear here...</p>';
+                }
             }
         }, 5000);
     }
 
     showMessage(message, type = 'info') {
         const errorContainer = document.getElementById('errorMessages');
+        errorContainer.innerHTML = '';
         const messageDiv = document.createElement('div');
-        messageDiv.className = type === 'success' ? 'success-message' : 'error-message';
-        messageDiv.textContent = message;
+        
+        if (type === 'success') {
+            messageDiv.className = 'bg-green-50 border-l-4 border-green-400 p-4 rounded-r-lg flex items-start gap-3';
+            messageDiv.innerHTML = `
+                <svg class="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div>
+                    <p class="text-sm font-medium text-green-800">Success</p>
+                    <p class="text-sm text-green-700">${message}</p>
+                </div>
+            `;
+        } else {
+            messageDiv.className = 'bg-blue-50 border-l-4 border-blue-400 p-4 rounded-r-lg flex items-start gap-3';
+            messageDiv.innerHTML = `
+                <svg class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <div>
+                    <p class="text-sm font-medium text-blue-800">Info</p>
+                    <p class="text-sm text-blue-700">${message}</p>
+                </div>
+            `;
+        }
+        
         errorContainer.appendChild(messageDiv);
         
         setTimeout(() => {
             if (messageDiv.parentNode) {
                 messageDiv.parentNode.removeChild(messageDiv);
+                if (errorContainer.children.length === 0) {
+                    errorContainer.innerHTML = '<p class="text-slate-500 font-mono text-sm flex items-center justify-center">Messages will appear here...</p>';
+                }
             }
         }, 3000);
     }
 
     clearErrors() {
-        document.getElementById('errorMessages').innerHTML = '';
+        const errorContainer = document.getElementById('errorMessages');
+        errorContainer.innerHTML = '<p class="text-slate-500 font-mono text-sm flex items-center justify-center">Messages will appear here...</p>';
     }
 
     beautifyJWK() {
