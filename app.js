@@ -817,8 +817,6 @@ class JWKCryptoApp {
                         enc: 'A256GCM',
                         kid: encryptionKid 
                     })
-                    .setIssuedAt()
-                    .setExpirationTime('2h')
                     .encrypt(currentTab.encryptionPublicKey);
             } else {
                 // For plain text, use CompactEncrypt to get a compact JWE string
