@@ -795,14 +795,9 @@ class JWKCryptoApp {
             try {
                 payload = JSON.parse(payloadText);
                 isJsonPayload = true;
-                // Add metadata to indicate this was originally JSON
-                payload.__originalType = 'json';
             } catch (jsonError) {
-                // If JSON parsing fails, treat as plain text
-                payload = { 
-                    __originalType: 'text',
-                    data: payloadText 
-                };
+                // If JSON parsing fails, treat as plain text - encrypt directly
+                payload = payloadText;
                 isJsonPayload = false;
             }
 
@@ -813,15 +808,30 @@ class JWKCryptoApp {
                 encryptionKid = encryptionJwk?.kid;
             }
 
-            const jwt = await new jose.EncryptJWT(payload)
-                .setProtectedHeader({ 
-                    alg: 'RSA-OAEP-256', 
-                    enc: 'A256GCM',
-                    kid: encryptionKid 
-                })
-                .setIssuedAt()
-                .setExpirationTime('2h')
-                .encrypt(currentTab.encryptionPublicKey);
+            let jwt;
+            if (isJsonPayload) {
+                // For JSON payloads, use EncryptJWT with full JWT structure
+                jwt = await new jose.EncryptJWT(payload)
+                    .setProtectedHeader({ 
+                        alg: 'RSA-OAEP-256', 
+                        enc: 'A256GCM',
+                        kid: encryptionKid 
+                    })
+                    .setIssuedAt()
+                    .setExpirationTime('2h')
+                    .encrypt(currentTab.encryptionPublicKey);
+            } else {
+                // For plain text, use CompactEncrypt to get a compact JWE string
+                const encoder = new TextEncoder();
+                const plaintext = encoder.encode(payload);
+                jwt = await new jose.CompactEncrypt(plaintext)
+                    .setProtectedHeader({ 
+                        alg: 'RSA-OAEP-256', 
+                        enc: 'A256GCM',
+                        kid: encryptionKid 
+                    })
+                    .encrypt(currentTab.encryptionPublicKey);
+            }
 
             document.getElementById('encryptedJwt').value = jwt;
             this.saveJWTOperationData();
@@ -862,30 +872,35 @@ class JWKCryptoApp {
                 throw new Error('Please enter an encrypted JWT to decrypt.');
             }
 
-            const { payload, protectedHeader } = await jose.jwtDecrypt(jwtText, currentTab.encryptionPrivateKey);
-
             let displayResult;
             let messageType;
+            let protectedHeader;
 
-            // Check if this was originally plain text or JSON
-            if (payload.__originalType === 'text') {
-                // Original was plain text, return just the text
-                displayResult = payload.data;
-                messageType = 'plain text';
-            } else if (payload.__originalType === 'json') {
-                // Original was JSON, remove metadata and return JSON
-                const cleanPayload = { ...payload };
-                delete cleanPayload.__originalType;
-                displayResult = cleanPayload;
-                messageType = 'JSON';
-            } else {
-                // Legacy format or no metadata, show full payload
-                displayResult = {
-                    header: protectedHeader,
-                    payload: payload,
-                    message: 'JWT decrypted successfully'
-                };
-                messageType = 'JWT';
+            try {
+                // First try to decrypt as a JWT (for JSON payloads)
+                const jwtResult = await jose.jwtDecrypt(jwtText, currentTab.encryptionPrivateKey);
+                protectedHeader = jwtResult.protectedHeader;
+                
+                if (jwtResult.payload.data && Object.keys(jwtResult.payload).length === 1) {
+                    // This looks like a plain text that was wrapped in { data: "..." }
+                    displayResult = jwtResult.payload.data;
+                    messageType = 'plain text (legacy format)';
+                } else {
+                    // This is actual JSON payload
+                    displayResult = jwtResult.payload;
+                    messageType = 'JSON';
+                }
+            } catch (jwtError) {
+                try {
+                    // Try to decrypt as compact JWE (for plain text)
+                    const { plaintext, protectedHeader: header } = await jose.compactDecrypt(jwtText, currentTab.encryptionPrivateKey);
+                    protectedHeader = header;
+                    const decoder = new TextDecoder();
+                    displayResult = decoder.decode(plaintext);
+                    messageType = 'plain text';
+                } catch (compactError) {
+                    throw new Error(`Failed to decrypt as both JWT and compact JWE: ${jwtError.message} | ${compactError.message}`);
+                }
             }
 
             // Display result based on type
