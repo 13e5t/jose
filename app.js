@@ -279,6 +279,9 @@ class JWKCryptoApp {
         if (jwkStatusElement) {
             const hasSigningKeys = !!(currentTab.signingPrivateKey && currentTab.signingPublicKey);
             const hasEncryptionKeys = !!(currentTab.encryptionPrivateKey && currentTab.encryptionPublicKey);
+            const hasSigningPublicOnly = !currentTab.signingPrivateKey && currentTab.signingPublicKey;
+            const hasEncryptionPublicOnly = !currentTab.encryptionPrivateKey && currentTab.encryptionPublicKey;
+            const isPublicOnly = this.isPublicOnlyJWKSet(currentTab.jwkSet);
 
             jwkStatusElement.className = 'jwt-jwk-status';
 
@@ -291,10 +294,25 @@ class JWKCryptoApp {
             } else if (hasEncryptionKeys) {
                 jwkStatusElement.textContent = 'Ready for encryption only';
                 jwkStatusElement.classList.add('has-encryption');
+            } else if (isPublicOnly && (hasSigningPublicOnly || hasEncryptionPublicOnly)) {
+                // Public-only keys detected
+                if (hasSigningPublicOnly && hasEncryptionPublicOnly) {
+                    jwkStatusElement.textContent = 'Public keys only - verify & encrypt available';
+                    jwkStatusElement.classList.add('has-public-both');
+                } else if (hasSigningPublicOnly) {
+                    jwkStatusElement.textContent = 'Public key only - verify available';
+                    jwkStatusElement.classList.add('has-public-signing');
+                } else if (hasEncryptionPublicOnly) {
+                    jwkStatusElement.textContent = 'Public key only - encrypt available';
+                    jwkStatusElement.classList.add('has-public-encryption');
+                }
             } else {
                 jwkStatusElement.textContent = 'No keys loaded';
             }
         }
+
+        // Update button states based on available keys
+        this.updateButtonStates();
     }
 
     getCurrentJWKTab() {
@@ -451,6 +469,56 @@ class JWKCryptoApp {
         return normalized;
     }
 
+    // Helper function to detect if JWK set contains only public keys
+    isPublicOnlyJWKSet(jwkSet) {
+        if (!jwkSet) return false;
+        
+        if (jwkSet.keys && Array.isArray(jwkSet.keys)) {
+            // Check if all keys in the set are public only (no private key component 'd')
+            return jwkSet.keys.every(jwk => !jwk.d);
+        } else {
+            // Single JWK provided
+            return !jwkSet.d;
+        }
+    }
+
+    // Helper function to update button states based on available keys
+    updateButtonStates() {
+        const currentTab = this.getCurrentJWKTab();
+        if (!currentTab) return;
+
+        const hasSigningPrivateKey = !!currentTab.signingPrivateKey;
+        const hasEncryptionPrivateKey = !!currentTab.encryptionPrivateKey;
+        const signButton = document.getElementById('signJwt');
+        const decryptButton = document.getElementById('decryptJwtBtn');
+
+        // Update Sign JWT button
+        if (signButton) {
+            if (hasSigningPrivateKey) {
+                signButton.disabled = false;
+                signButton.classList.remove('btn-disabled');
+                signButton.title = '';
+            } else {
+                signButton.disabled = true;
+                signButton.classList.add('btn-disabled');
+                signButton.title = 'Signing requires a private key. Only verify operation is available with public keys.';
+            }
+        }
+
+        // Update Decrypt JWT button
+        if (decryptButton) {
+            if (hasEncryptionPrivateKey) {
+                decryptButton.disabled = false;
+                decryptButton.classList.remove('btn-disabled');
+                decryptButton.title = '';
+            } else {
+                decryptButton.disabled = true;
+                decryptButton.classList.add('btn-disabled');
+                decryptButton.title = 'Decryption requires a private key. Only encrypt operation is available with public keys.';
+            }
+        }
+    }
+
     async handleJWKInput(event) {
         try {
             const currentTab = this.getCurrentJWKTab();
@@ -589,6 +657,9 @@ class JWKCryptoApp {
             // Show success message indicating what keys were loaded
             const hasSigningKeys = !!(currentTab.signingPrivateKey && currentTab.signingPublicKey);
             const hasEncryptionKeys = !!(currentTab.encryptionPrivateKey && currentTab.encryptionPublicKey);
+            const hasSigningPublicOnly = !currentTab.signingPrivateKey && currentTab.signingPublicKey;
+            const hasEncryptionPublicOnly = !currentTab.encryptionPrivateKey && currentTab.encryptionPublicKey;
+            const isPublicOnly = this.isPublicOnlyJWKSet(currentTab.jwkSet);
             
             if (hasSigningKeys && hasEncryptionKeys) {
                 this.showMessage('JWK Set loaded successfully with signing and encryption keys!', 'success');
@@ -596,6 +667,15 @@ class JWKCryptoApp {
                 this.showMessage('JWK Set loaded successfully with signing keys only!', 'success');
             } else if (hasEncryptionKeys) {
                 this.showMessage('JWK Set loaded successfully with encryption keys only!', 'success');
+            } else if (isPublicOnly && (hasSigningPublicOnly || hasEncryptionPublicOnly)) {
+                // Public-only keys detected
+                if (hasSigningPublicOnly && hasEncryptionPublicOnly) {
+                    this.showMessage('JWK Set loaded successfully with public keys only! Features: verify & encrypt', 'success');
+                } else if (hasSigningPublicOnly) {
+                    this.showMessage('JWK Set loaded successfully with signing public key only! Features: verify', 'success');
+                } else if (hasEncryptionPublicOnly) {
+                    this.showMessage('JWK Set loaded successfully with encryption public key only! Features: encrypt', 'success');
+                }
             } else {
                 this.showError('JWK Set was parsed but no valid keys could be imported');
             }
@@ -610,8 +690,20 @@ class JWKCryptoApp {
             this.clearErrors();
             
             const currentTab = this.getCurrentJWKTab();
+            
+            // Check if button should be disabled (extra safety check)
+            const signButton = document.getElementById('signJwt');
+            if (signButton && signButton.disabled) {
+                return; // Silently ignore clicks on disabled button
+            }
+            
             if (!currentTab || !currentTab.signingPrivateKey) {
-                throw new Error('No signing private key available. Please generate or input a JWK Set with signing key.');
+                const isPublicOnly = this.isPublicOnlyJWKSet(currentTab?.jwkSet);
+                if (isPublicOnly) {
+                    throw new Error('Cannot sign with public key only. Signing requires a private key. Only verify operation is available with public keys.');
+                } else {
+                    throw new Error('No signing private key available. Please generate or input a JWK Set with signing key.');
+                }
             }
 
             const payloadText = document.getElementById('signPayload').value.trim();
@@ -749,8 +841,20 @@ class JWKCryptoApp {
             this.clearErrors();
             
             const currentTab = this.getCurrentJWKTab();
+            
+            // Check if button should be disabled (extra safety check)
+            const decryptButton = document.getElementById('decryptJwtBtn');
+            if (decryptButton && decryptButton.disabled) {
+                return; // Silently ignore clicks on disabled button
+            }
+            
             if (!currentTab || !currentTab.encryptionPrivateKey) {
-                throw new Error('No encryption private key available. Please generate or input a JWK Set with encryption key.');
+                const isPublicOnly = this.isPublicOnlyJWKSet(currentTab?.jwkSet);
+                if (isPublicOnly) {
+                    throw new Error('Cannot decrypt with public key only. Decryption requires a private key. Only encrypt operation is available with public keys.');
+                } else {
+                    throw new Error('No encryption private key available. Please generate or input a JWK Set with encryption key.');
+                }
             }
 
             const jwtText = document.getElementById('decryptJwt').value.trim();

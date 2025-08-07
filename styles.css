@@ -94,6 +94,19 @@ textarea[readonly] {
     transition: background-color 0.3s;
 }
 
+.btn:disabled,
+.btn.btn-disabled {
+    background-color: #6c757d;
+    color: #adb5bd;
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.btn:disabled:hover,
+.btn.btn-disabled:hover {
+    background-color: #6c757d;
+}
+
 .btn:hover {
     background-color: #2980b9;
 }
@@ -329,6 +342,19 @@ textarea[readonly] {
 
 .jwt-jwk-status.has-both {
     color: #28a745;
+    font-weight: 600;
+}
+
+.jwt-jwk-status.has-public-signing {
+    color: #fd7e14;
+}
+
+.jwt-jwk-status.has-public-encryption {
+    color: #6f42c1;
+}
+
+.jwt-jwk-status.has-public-both {
+    color: #fd7e14;
     font-weight: 600;
 }
 
