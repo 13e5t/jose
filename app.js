@@ -352,6 +352,7 @@ class JWKCryptoApp {
         if (decryptResult) decryptResult.value = currentTab.jwtData.decryptResult;
     }
 
+
     async generateJWK() {
         try {
             this.clearErrors();
@@ -447,7 +448,6 @@ class JWKCryptoApp {
                 normalized[field] = this.fixBase64UrlEncoding(normalized[field]);
             }
         }
-        
         return normalized;
     }
 
@@ -480,11 +480,16 @@ class JWKCryptoApp {
                 for (const jwk of jwkSet.keys) {
                     const normalizedJwk = this.normalizeJWK(jwk);
                     
-                    if (jwk.use === 'sig' || jwk.alg === 'RS256') {
+                    if (jwk.use === 'sig' || jwk.alg === 'RS256' || (jwk.kty === 'RSA' && jwk.kid && jwk.kid.includes('signing'))) {
                         // Signing key
                         if (normalizedJwk.d) {
                             try {
-                                currentTab.signingPrivateKey = await jose.importJWK(normalizedJwk, jwk.alg || 'RS256');
+                                // Try multiple approaches for importing RSA private key
+                                try {
+                                    currentTab.signingPrivateKey = await jose.importJWK(normalizedJwk);
+                                } catch (firstError) {
+                                    currentTab.signingPrivateKey = await jose.importJWK(normalizedJwk, 'RS256');
+                                }
                             } catch (error) {
                                 console.warn('Failed to import signing private key:', error);
                                 this.showError(`Failed to import signing private key: ${error.message}`);
@@ -501,7 +506,7 @@ class JWKCryptoApp {
                         delete publicJwk.qi;
 
                         try {
-                            currentTab.signingPublicKey = await jose.importJWK(publicJwk, jwk.alg || 'RS256');
+                            currentTab.signingPublicKey = await jose.importJWK(publicJwk);
                         } catch (error) {
                             console.warn('Failed to import signing public key:', error);
                             this.showError(`Failed to import signing public key: ${error.message}`);
@@ -510,7 +515,7 @@ class JWKCryptoApp {
                         // Encryption key
                         if (normalizedJwk.d) {
                             try {
-                                currentTab.encryptionPrivateKey = await jose.importJWK(normalizedJwk, jwk.alg || 'RSA-OAEP-256');
+                                currentTab.encryptionPrivateKey = await jose.importJWK(normalizedJwk);
                             } catch (error) {
                                 console.warn('Failed to import encryption private key:', error);
                                 this.showError(`Failed to import encryption private key: ${error.message}`);
@@ -527,7 +532,7 @@ class JWKCryptoApp {
                         delete publicJwk.qi;
 
                         try {
-                            currentTab.encryptionPublicKey = await jose.importJWK(publicJwk, jwk.alg || 'RSA-OAEP-256');
+                            currentTab.encryptionPublicKey = await jose.importJWK(publicJwk);
                         } catch (error) {
                             console.warn('Failed to import encryption public key:', error);
                             this.showError(`Failed to import encryption public key: ${error.message}`);
@@ -540,7 +545,13 @@ class JWKCryptoApp {
                 
                 if (jwkSet.use === 'sig' || jwkSet.alg === 'RS256' || !jwkSet.use) {
                     if (normalizedJwk.d) {
-                        currentTab.signingPrivateKey = await jose.importJWK(normalizedJwk, jwkSet.alg || 'RS256');
+                        // Try multiple approaches for importing RSA private key
+                        try {
+                            currentTab.signingPrivateKey = await jose.importJWK(normalizedJwk);
+                        } catch (firstError) {
+                            console.log('Single JWK first import attempt failed, trying with RS256 algorithm:', firstError.message);
+                            currentTab.signingPrivateKey = await jose.importJWK(normalizedJwk, 'RS256');
+                        }
                     }
                     
                     const publicJwk = { ...normalizedJwk };
@@ -551,10 +562,12 @@ class JWKCryptoApp {
                     delete publicJwk.q;
                     delete publicJwk.qi;
 
-                    currentTab.signingPublicKey = await jose.importJWK(publicJwk, jwkSet.alg || 'RS256');
+                    // For RSA signing keys, don't pass algorithm parameter to importJWK
+                    currentTab.signingPublicKey = await jose.importJWK(publicJwk);
                 } else if (jwkSet.use === 'enc') {
                     if (normalizedJwk.d) {
-                        currentTab.encryptionPrivateKey = await jose.importJWK(normalizedJwk, jwkSet.alg || 'RSA-OAEP-256');
+                        // For RSA encryption keys, don't pass algorithm parameter to importJWK
+                        currentTab.encryptionPrivateKey = await jose.importJWK(normalizedJwk);
                     }
                     
                     const publicJwk = { ...normalizedJwk };
@@ -565,7 +578,8 @@ class JWKCryptoApp {
                     delete publicJwk.q;
                     delete publicJwk.qi;
 
-                    currentTab.encryptionPublicKey = await jose.importJWK(publicJwk, jwkSet.alg || 'RSA-OAEP-256');
+                    // For RSA encryption keys, don't pass algorithm parameter to importJWK
+                    currentTab.encryptionPublicKey = await jose.importJWK(publicJwk);
                 }
             }
             
