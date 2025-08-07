@@ -29,19 +29,50 @@ A modern, tabbed web application for JWK (JSON Web Key) cryptographic operations
 
 ```
 jose/
-├── index.html          # Main HTML interface with tabbed UI
-├── styles.css          # Modern CSS with tab styling
-├── app.js             # JavaScript application logic with tab management
+├── src/
+│   ├── components/     # React components
+│   │   ├── jwt/       # JWT operation components
+│   │   ├── JWKTabBar.jsx
+│   │   ├── JWKManagement.jsx
+│   │   └── JWTOperations.jsx
+│   ├── hooks/         # Custom React hooks
+│   ├── utils/         # Utility functions
+│   ├── types/         # Type definitions
+│   ├── App.jsx        # Main React app component
+│   ├── main.jsx       # React entry point
+│   └── index.css      # Global styles
+├── public/            # Static assets
+├── index.html         # HTML entry point
+├── package.json       # Dependencies and scripts
+├── vite.config.js     # Vite configuration
+├── tailwind.config.js # Tailwind CSS configuration
 ├── netlify.toml       # Netlify deployment configuration
 ├── vercel.json        # Vercel deployment configuration
 ├── CLAUDE.md          # Claude Code development guidance
+├── PRD.md            # Product Requirements Document
+├── MIGRATION-TO-REACT.md # React migration guide
 └── README.md          # This documentation
 ```
 
 ## 🚀 Quick Start
 
-### Local Development
-1. Clone or download this repository
+### React Development (Recommended)
+```bash
+# Install dependencies
+npm install
+
+# Start development server with hot reload
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+### Legacy Development (Vanilla JS)
+1. Use the original `app.js` and `styles.css` files
 2. Open `index.html` in a modern web browser
 3. The app runs entirely client-side - no server required!
 

@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for JWK Crypto Operations React App */
+
+/* Smooth transitions for interactive elements */
+* {
+  transition-property: all;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Custom scrollbar for textareas */
+textarea::-webkit-scrollbar {
+  width: 8px;
+}
+
+textarea::-webkit-scrollbar-track {
+  @apply bg-slate-100 rounded;
+}
+
+textarea::-webkit-scrollbar-thumb {
+  @apply bg-slate-400 rounded hover:bg-slate-500;
+}
+
+/* JWT Status color classes */
+.jwt-status-signing {
+  @apply text-green-600;
+}
+
+.jwt-status-encryption {
+  @apply text-blue-600;
+}
+
+.jwt-status-both {
+  @apply text-green-600 font-semibold;
+}
+
+.jwt-status-public-signing {
+  @apply text-amber-600;
+}
+
+.jwt-status-public-encryption {
+  @apply text-purple-600;
+}
+
+.jwt-status-public-both {
+  @apply text-amber-600 font-semibold;
+}
+
+/* Print styles */
+@media print {
+  body {
+    @apply bg-white;
+  }
+  
+  .bg-gradient-to-br {
+    @apply bg-white;
+  }
+}
