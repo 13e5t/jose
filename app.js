@@ -190,7 +190,23 @@ class JWKCryptoApp {
             </div>
             <div class="form-group">
                 <label>JWK Set (JSON Web Key Set):</label>
-                <textarea class="jwk-input" rows="12" placeholder="Enter JWK Set JSON or generate one using the button above"></textarea>
+                <div class="textarea-header">
+                    <span class="textarea-note">Paste your custom JWK Set JSON below or generate one using the button above</span>
+                </div>
+                <textarea class="jwk-input" rows="12" placeholder='Paste your custom JWK Set here, for example:
+{
+  "keys": [
+    {
+      "kty": "RSA",
+      "use": "sig",
+      "kid": "sig_key_id",
+      "alg": "RS256",
+      "n": "...",
+      "e": "AQAB",
+      "d": "..."
+    }
+  ]
+}'></textarea>
             </div>
         `;
 
@@ -406,6 +422,35 @@ class JWKCryptoApp {
         this.showMessage('JWK Set cleared', 'info');
     }
 
+    // Helper function to fix base64url encoding issues from different libraries
+    fixBase64UrlEncoding(value) {
+        if (!value) return value;
+        
+        // Remove any padding characters that might have been added
+        let fixed = value.replace(/=/g, '');
+        
+        // Replace any standard base64 characters with base64url equivalents
+        fixed = fixed.replace(/\+/g, '-').replace(/\//g, '_');
+        
+        return fixed;
+    }
+
+    // Helper function to normalize JWK for compatibility between different JOSE libraries
+    normalizeJWK(jwk) {
+        const normalized = { ...jwk };
+        
+        // Fix base64url encoding for all RSA private key components
+        const base64Fields = ['n', 'e', 'd', 'p', 'q', 'dp', 'dq', 'qi'];
+        
+        for (const field of base64Fields) {
+            if (normalized[field]) {
+                normalized[field] = this.fixBase64UrlEncoding(normalized[field]);
+            }
+        }
+        
+        return normalized;
+    }
+
     async handleJWKInput(event) {
         try {
             const currentTab = this.getCurrentJWKTab();
@@ -433,13 +478,21 @@ class JWKCryptoApp {
             // Process each key in the set
             if (jwkSet.keys && Array.isArray(jwkSet.keys)) {
                 for (const jwk of jwkSet.keys) {
+                    const normalizedJwk = this.normalizeJWK(jwk);
+                    
                     if (jwk.use === 'sig' || jwk.alg === 'RS256') {
                         // Signing key
-                        if (jwk.d) {
-                            currentTab.signingPrivateKey = await jose.importJWK(jwk, jwk.alg || 'RS256');
+                        if (normalizedJwk.d) {
+                            try {
+                                currentTab.signingPrivateKey = await jose.importJWK(normalizedJwk, jwk.alg || 'RS256');
+                            } catch (error) {
+                                console.warn('Failed to import signing private key:', error);
+                                this.showError(`Failed to import signing private key: ${error.message}`);
+                                continue;
+                            }
                         }
                         
-                        const publicJwk = { ...jwk };
+                        const publicJwk = { ...normalizedJwk };
                         delete publicJwk.d;
                         delete publicJwk.dp;
                         delete publicJwk.dq;
@@ -447,14 +500,25 @@ class JWKCryptoApp {
                         delete publicJwk.q;
                         delete publicJwk.qi;
 
-                        currentTab.signingPublicKey = await jose.importJWK(publicJwk, jwk.alg || 'RS256');
+                        try {
+                            currentTab.signingPublicKey = await jose.importJWK(publicJwk, jwk.alg || 'RS256');
+                        } catch (error) {
+                            console.warn('Failed to import signing public key:', error);
+                            this.showError(`Failed to import signing public key: ${error.message}`);
+                        }
                     } else if (jwk.use === 'enc' || jwk.alg === 'RSA-OAEP-256') {
                         // Encryption key
-                        if (jwk.d) {
-                            currentTab.encryptionPrivateKey = await jose.importJWK(jwk, jwk.alg || 'RSA-OAEP-256');
+                        if (normalizedJwk.d) {
+                            try {
+                                currentTab.encryptionPrivateKey = await jose.importJWK(normalizedJwk, jwk.alg || 'RSA-OAEP-256');
+                            } catch (error) {
+                                console.warn('Failed to import encryption private key:', error);
+                                this.showError(`Failed to import encryption private key: ${error.message}`);
+                                continue;
+                            }
                         }
                         
-                        const publicJwk = { ...jwk };
+                        const publicJwk = { ...normalizedJwk };
                         delete publicJwk.d;
                         delete publicJwk.dp;
                         delete publicJwk.dq;
@@ -462,18 +526,24 @@ class JWKCryptoApp {
                         delete publicJwk.q;
                         delete publicJwk.qi;
 
-                        currentTab.encryptionPublicKey = await jose.importJWK(publicJwk, jwk.alg || 'RSA-OAEP-256');
+                        try {
+                            currentTab.encryptionPublicKey = await jose.importJWK(publicJwk, jwk.alg || 'RSA-OAEP-256');
+                        } catch (error) {
+                            console.warn('Failed to import encryption public key:', error);
+                            this.showError(`Failed to import encryption public key: ${error.message}`);
+                        }
                     }
                 }
             } else {
                 // Single JWK provided, try to determine its use
-                const jwk = jwkSet;
-                if (jwk.use === 'sig' || jwk.alg === 'RS256' || !jwk.use) {
-                    if (jwk.d) {
-                        currentTab.signingPrivateKey = await jose.importJWK(jwk, jwk.alg || 'RS256');
+                const normalizedJwk = this.normalizeJWK(jwkSet);
+                
+                if (jwkSet.use === 'sig' || jwkSet.alg === 'RS256' || !jwkSet.use) {
+                    if (normalizedJwk.d) {
+                        currentTab.signingPrivateKey = await jose.importJWK(normalizedJwk, jwkSet.alg || 'RS256');
                     }
                     
-                    const publicJwk = { ...jwk };
+                    const publicJwk = { ...normalizedJwk };
                     delete publicJwk.d;
                     delete publicJwk.dp;
                     delete publicJwk.dq;
@@ -481,13 +551,13 @@ class JWKCryptoApp {
                     delete publicJwk.q;
                     delete publicJwk.qi;
 
-                    currentTab.signingPublicKey = await jose.importJWK(publicJwk, jwk.alg || 'RS256');
-                } else if (jwk.use === 'enc') {
-                    if (jwk.d) {
-                        currentTab.encryptionPrivateKey = await jose.importJWK(jwk, jwk.alg || 'RSA-OAEP-256');
+                    currentTab.signingPublicKey = await jose.importJWK(publicJwk, jwkSet.alg || 'RS256');
+                } else if (jwkSet.use === 'enc') {
+                    if (normalizedJwk.d) {
+                        currentTab.encryptionPrivateKey = await jose.importJWK(normalizedJwk, jwkSet.alg || 'RSA-OAEP-256');
                     }
                     
-                    const publicJwk = { ...jwk };
+                    const publicJwk = { ...normalizedJwk };
                     delete publicJwk.d;
                     delete publicJwk.dp;
                     delete publicJwk.dq;
@@ -495,12 +565,27 @@ class JWKCryptoApp {
                     delete publicJwk.q;
                     delete publicJwk.qi;
 
-                    currentTab.encryptionPublicKey = await jose.importJWK(publicJwk, jwk.alg || 'RSA-OAEP-256');
+                    currentTab.encryptionPublicKey = await jose.importJWK(publicJwk, jwkSet.alg || 'RSA-OAEP-256');
                 }
             }
             
             this.clearErrors();
             this.updateJWTOperationsDisplay();
+            
+            // Show success message indicating what keys were loaded
+            const hasSigningKeys = !!(currentTab.signingPrivateKey && currentTab.signingPublicKey);
+            const hasEncryptionKeys = !!(currentTab.encryptionPrivateKey && currentTab.encryptionPublicKey);
+            
+            if (hasSigningKeys && hasEncryptionKeys) {
+                this.showMessage('JWK Set loaded successfully with signing and encryption keys!', 'success');
+            } else if (hasSigningKeys) {
+                this.showMessage('JWK Set loaded successfully with signing keys only!', 'success');
+            } else if (hasEncryptionKeys) {
+                this.showMessage('JWK Set loaded successfully with encryption keys only!', 'success');
+            } else {
+                this.showError('JWK Set was parsed but no valid keys could be imported');
+            }
+            
         } catch (error) {
             this.showError('Invalid JWK Set format: ' + error.message);
         }

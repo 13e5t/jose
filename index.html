@@ -63,7 +63,23 @@
                 </div>
                 <div class="form-group">
                     <label>JWK Set (JSON Web Key Set):</label>
-                    <textarea class="jwk-input" rows="12" placeholder="Enter JWK Set JSON or generate one using the button above"></textarea>
+                    <div class="textarea-header">
+                        <span class="textarea-note">Paste your custom JWK Set JSON below</span>
+                    </div>
+                    <textarea class="jwk-input" rows="12" placeholder='Paste your custom JWK Set here, for example:
+{
+  "keys": [
+    {
+      "kty": "RSA",
+      "use": "sig",
+      "kid": "sig_key_id",
+      "alg": "RS256",
+      "n": "...",
+      "e": "AQAB",
+      "d": "..."
+    }
+  ]
+}'></textarea>
                 </div>
             </div>
         </div>
