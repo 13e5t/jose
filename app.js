@@ -61,6 +61,9 @@ class JWKCryptoApp {
             if (e.target.closest('.generate-jwk')) {
                 this.generateJWK();
             }
+            if (e.target.closest('.beautify-jwk')) {
+                this.beautifyJWK();
+            }
             if (e.target.closest('.clear-jwk')) {
                 this.clearJWK();
             }
@@ -186,6 +189,7 @@ class JWKCryptoApp {
         contentElement.innerHTML = `
             <div class="button-group">
                 <button class="generate-jwk btn">Generate JWK Set</button>
+                <button class="beautify-jwk btn">Beautify</button>
                 <button class="clear-jwk btn">Clear JWK Set</button>
             </div>
             <div class="form-group">
@@ -961,6 +965,28 @@ class JWKCryptoApp {
 
     clearErrors() {
         document.getElementById('errorMessages').innerHTML = '';
+    }
+
+    beautifyJWK() {
+        try {
+            const jwkInput = this.getCurrentJWKInput();
+            if (!jwkInput) return;
+
+            const jwkText = jwkInput.value.trim();
+            if (!jwkText) {
+                this.showError('No JWK Set to beautify. Please enter or generate a JWK Set first.');
+                return;
+            }
+
+            // Parse and re-stringify with proper formatting
+            const jwkSet = JSON.parse(jwkText);
+            const beautifiedJson = JSON.stringify(jwkSet, null, 2);
+            
+            jwkInput.value = beautifiedJson;
+            this.showMessage('JWK Set beautified successfully!', 'success');
+        } catch (error) {
+            this.showError('Failed to beautify JWK Set: ' + error.message + '. Please ensure the JSON is valid.');
+        }
     }
 }
 
