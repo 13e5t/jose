@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useEffect } from 'react';
 import { MESSAGE_TYPES } from '../types';
 
 /**
@@ -28,7 +28,7 @@ export const useMessages = () => {
     // Auto-hide after duration (except for errors which stay longer)
     const hideDelay = type === MESSAGE_TYPES.ERROR ? 5000 : duration;
     timeoutRef.current = setTimeout(() => {
-      hideMessage();
+      setMessage(prev => ({ ...prev, visible: false }));
     }, hideDelay);
   }, []);
 
@@ -57,6 +57,15 @@ export const useMessages = () => {
   const clearMessage = useCallback(() => {
     hideMessage();
   }, [hideMessage]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return {
     message,

@@ -4,7 +4,7 @@ import { useMessages } from './hooks/useMessages';
 import JWKTabBar from './components/JWKTabBar';
 import JWKManagement from './components/JWKManagement';
 import JWTOperations from './components/JWTOperations';
-import MessageDisplay from './components/MessageDisplay';
+import ToastNotification from './components/ToastNotification';
 
 function App() {
   const {
@@ -105,18 +105,11 @@ function App() {
           onShowSuccess={showSuccess}
         />
 
-        {/* Messages Section */}
-        <div className="bg-white rounded-xl shadow-lg p-6 sm:p-8 border border-slate-200">
-          <div className="flex items-center mb-6">
-            <div className="w-2 h-8 bg-gradient-to-b from-red-500 to-red-600 rounded-full mr-4"></div>
-            <h2 className="text-2xl font-semibold text-slate-800">Messages</h2>
-          </div>
-          
-          <MessageDisplay
-            message={message}
-            onClose={hideMessage}
-          />
-        </div>
+        {/* Toast Notifications */}
+        <ToastNotification
+          message={message}
+          onClose={hideMessage}
+        />
       </div>
     </div>
   );
