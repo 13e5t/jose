@@ -1,10 +1,11 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { useJWKTabs } from './hooks/useJWKTabs';
 import { useMessages } from './hooks/useMessages';
 import JWKTabBar from './components/JWKTabBar';
 import JWKManagement from './components/JWKManagement';
 import JWTOperations from './components/JWTOperations';
 import ToastNotification from './components/ToastNotification';
+import ConfirmDialog from './components/ConfirmDialog';
 
 function App() {
   const {
@@ -27,6 +28,13 @@ function App() {
     hideMessage
   } = useMessages();
 
+  // Confirmation dialog state
+  const [confirmDialog, setConfirmDialog] = useState({
+    isOpen: false,
+    tabId: null,
+    tabName: ''
+  });
+
   const currentTab = getCurrentTab();
 
   // JWK Tab Management
@@ -35,8 +43,26 @@ function App() {
   }, [addTab]);
 
   const handleTabRemove = useCallback((tabId) => {
-    removeTab(tabId);
-  }, [removeTab]);
+    const tab = tabs.get(tabId);
+    const tabName = tab?.name || 'this tab';
+    
+    setConfirmDialog({
+      isOpen: true,
+      tabId: tabId,
+      tabName: tabName
+    });
+  }, [tabs]);
+
+  const handleConfirmTabRemove = useCallback(() => {
+    if (confirmDialog.tabId) {
+      removeTab(confirmDialog.tabId);
+    }
+    setConfirmDialog({ isOpen: false, tabId: null, tabName: '' });
+  }, [removeTab, confirmDialog.tabId]);
+
+  const handleCancelTabRemove = useCallback(() => {
+    setConfirmDialog({ isOpen: false, tabId: null, tabName: '' });
+  }, []);
 
   const handleTabSwitch = useCallback((tabId) => {
     switchTab(tabId);
@@ -109,6 +135,18 @@ function App() {
         <ToastNotification
           message={message}
           onClose={hideMessage}
+        />
+
+        {/* Confirmation Dialog */}
+        <ConfirmDialog
+          isOpen={confirmDialog.isOpen}
+          onClose={handleCancelTabRemove}
+          onConfirm={handleConfirmTabRemove}
+          title="Close JWK Tab"
+          message={`Are you sure you want to close "${confirmDialog.tabName}"? All JWK data and JWT operations will be permanently lost.`}
+          confirmText="Close Tab"
+          cancelText="Cancel"
+          type="danger"
         />
       </div>
     </div>
