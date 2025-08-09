@@ -25,6 +25,13 @@ export const useJWKTabs = () => {
         encryptedJwt: '',
         decryptJwt: '',
         decryptResult: ''
+      },
+      requestApiData: {
+        requestUrl: '',
+        payload: '',
+        customHeaders: '',
+        result: '',
+        verifiedResult: ''
       }
     };
     return new Map([['default', defaultTab]]);
@@ -54,6 +61,13 @@ export const useJWKTabs = () => {
         encryptedJwt: '',
         decryptJwt: '',
         decryptResult: ''
+      },
+      requestApiData: {
+        requestUrl: '',
+        payload: '',
+        customHeaders: '',
+        result: '',
+        verifiedResult: ''
       }
     };
 
@@ -115,6 +129,20 @@ export const useJWKTabs = () => {
     });
   }, []);
 
+  const updateRequestApiData = useCallback((tabId, requestApiData) => {
+    setTabs(prevTabs => {
+      const newTabs = new Map(prevTabs);
+      const existingTab = newTabs.get(tabId);
+      if (existingTab) {
+        newTabs.set(tabId, {
+          ...existingTab,
+          requestApiData: { ...existingTab.requestApiData, ...requestApiData }
+        });
+      }
+      return newTabs;
+    });
+  }, []);
+
   const getCurrentTab = useCallback(() => {
     return tabs.get(activeTabId);
   }, [tabs, activeTabId]);
@@ -134,6 +162,7 @@ export const useJWKTabs = () => {
     updateTabName,
     updateJWKData,
     updateJWTData,
+    updateRequestApiData,
     getCurrentTab,
     switchTab
   };

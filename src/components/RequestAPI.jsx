@@ -4,17 +4,41 @@ import * as jose from 'jose';
 
 const RequestAPI = ({ 
   currentTab, 
+  onUpdateRequestApiData,
   onShowMessage, 
   onShowError, 
   onShowSuccess 
 }) => {
-  const [requestUrl, setRequestUrl] = useState('');
-  const [payload, setPayload] = useState('');
-  const [customHeaders, setCustomHeaders] = useState('');
-  const [result, setResult] = useState('');
-  const [verifiedResult, setVerifiedResult] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
+
+  // Get values from currentTab or use defaults
+  const requestUrl = currentTab?.requestApiData?.requestUrl || '';
+  const payload = currentTab?.requestApiData?.payload || '';
+  const customHeaders = currentTab?.requestApiData?.customHeaders || '';
+  const result = currentTab?.requestApiData?.result || '';
+  const verifiedResult = currentTab?.requestApiData?.verifiedResult || '';
+
+  // Helper functions to update persisted data
+  const setRequestUrl = useCallback((value) => {
+    onUpdateRequestApiData({ requestUrl: value });
+  }, [onUpdateRequestApiData]);
+
+  const setPayload = useCallback((value) => {
+    onUpdateRequestApiData({ payload: value });
+  }, [onUpdateRequestApiData]);
+
+  const setCustomHeaders = useCallback((value) => {
+    onUpdateRequestApiData({ customHeaders: value });
+  }, [onUpdateRequestApiData]);
+
+  const setResult = useCallback((value) => {
+    onUpdateRequestApiData({ result: value });
+  }, [onUpdateRequestApiData]);
+
+  const setVerifiedResult = useCallback((value) => {
+    onUpdateRequestApiData({ verifiedResult: value });
+  }, [onUpdateRequestApiData]);
 
   const beautifyPayloadJSON = useCallback(() => {
     try {
@@ -212,29 +236,6 @@ const RequestAPI = ({
           />
         </div>
 
-        {/* Payload Input */}
-        <div>
-          <div className="flex justify-between items-center mb-2">
-            <label className="block text-sm font-medium text-slate-700">
-              JSON Payload
-            </label>
-            <button
-              onClick={beautifyPayloadJSON}
-              className="text-sm text-green-600 hover:text-green-700 font-medium flex items-center gap-1"
-            >
-              <FileText className="w-4 h-4" />
-              Beautify
-            </button>
-          </div>
-          <textarea
-            value={payload}
-            onChange={(e) => setPayload(e.target.value)}
-            placeholder='{"key": "value", "data": "example"}'
-            rows={6}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent font-mono text-sm"
-          />
-        </div>
-
         {/* Custom Headers Input */}
         <div>
           <div className="flex justify-between items-center mb-2">
@@ -259,6 +260,29 @@ const RequestAPI = ({
           <p className="text-xs text-slate-500 mt-1">
             Default headers: {`{"Content-Type": "application/json"}`}. Custom headers will override defaults.
           </p>
+        </div>
+
+        {/* Payload Input */}
+        <div>
+          <div className="flex justify-between items-center mb-2">
+            <label className="block text-sm font-medium text-slate-700">
+              JSON Payload
+            </label>
+            <button
+              onClick={beautifyPayloadJSON}
+              className="text-sm text-green-600 hover:text-green-700 font-medium flex items-center gap-1"
+            >
+              <FileText className="w-4 h-4" />
+              Beautify
+            </button>
+          </div>
+          <textarea
+            value={payload}
+            onChange={(e) => setPayload(e.target.value)}
+            placeholder='{"key": "value", "data": "example"}'
+            rows={6}
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent font-mono text-sm"
+          />
         </div>
 
         {/* Submit Button */}

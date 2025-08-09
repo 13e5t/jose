@@ -17,6 +17,7 @@ function App() {
     updateTabName,
     updateJWKData,
     updateJWTData,
+    updateRequestApiData,
     getCurrentTab,
     switchTab
   } = useJWKTabs();
@@ -85,6 +86,11 @@ function App() {
   const handleUpdateJWT = useCallback((updates) => {
     updateJWTData(activeTabId, updates);
   }, [updateJWTData, activeTabId]);
+
+  // Request API Operations
+  const handleUpdateRequestApi = useCallback((updates) => {
+    updateRequestApiData(activeTabId, updates);
+  }, [updateRequestApiData, activeTabId]);
 
   return (
     <div className="bg-gradient-to-br from-slate-50 to-blue-50 min-h-screen">
@@ -164,6 +170,7 @@ function App() {
         ) : (
           <RequestAPI
             currentTab={currentTab}
+            onUpdateRequestApiData={handleUpdateRequestApi}
             onShowMessage={showInfo}
             onShowError={showError}
             onShowSuccess={showSuccess}
