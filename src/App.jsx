@@ -4,6 +4,7 @@ import { useMessages } from './hooks/useMessages';
 import JWKTabBar from './components/JWKTabBar';
 import JWKManagement from './components/JWKManagement';
 import JWTOperations from './components/JWTOperations';
+import RequestAPI from './components/RequestAPI';
 import ToastNotification from './components/ToastNotification';
 import ConfirmDialog from './components/ConfirmDialog';
 
@@ -34,6 +35,9 @@ function App() {
     tabId: null,
     tabName: ''
   });
+
+  // Main operation tab state (JWT Operations vs Get Initial Deeplink)
+  const [activeMainTab, setActiveMainTab] = useState('jwt');
 
   const currentTab = getCurrentTab();
 
@@ -122,14 +126,49 @@ function App() {
           />
         </div>
 
-        {/* JWT Operations Section */}
-        <JWTOperations
-          currentTab={currentTab}
-          onUpdateJWTData={handleUpdateJWT}
-          onShowMessage={showInfo}
-          onShowError={showError}
-          onShowSuccess={showSuccess}
-        />
+        {/* Main Operation Tabs */}
+        <div className="bg-white rounded-xl shadow-lg border border-slate-200 mb-8">
+          <div className="flex border-b border-slate-200">
+            <button
+              onClick={() => setActiveMainTab('jwt')}
+              className={`px-6 py-4 font-medium text-lg transition-all flex-1 ${
+                activeMainTab === 'jwt'
+                  ? 'bg-indigo-500 text-white rounded-tl-xl'
+                  : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50'
+              }`}
+            >
+              JWT Operations
+            </button>
+            <button
+              onClick={() => setActiveMainTab('deeplink')}
+              className={`px-6 py-4 font-medium text-lg transition-all flex-1 ${
+                activeMainTab === 'deeplink'
+                  ? 'bg-green-500 text-white rounded-tr-xl'
+                  : 'text-slate-600 hover:text-slate-800 hover:bg-slate-50'
+              }`}
+            >
+              Request API
+            </button>
+          </div>
+        </div>
+
+        {/* Active Main Tab Content */}
+        {activeMainTab === 'jwt' ? (
+          <JWTOperations
+            currentTab={currentTab}
+            onUpdateJWTData={handleUpdateJWT}
+            onShowMessage={showInfo}
+            onShowError={showError}
+            onShowSuccess={showSuccess}
+          />
+        ) : (
+          <RequestAPI
+            currentTab={currentTab}
+            onShowMessage={showInfo}
+            onShowError={showError}
+            onShowSuccess={showSuccess}
+          />
+        )}
 
         {/* Toast Notifications */}
         <ToastNotification

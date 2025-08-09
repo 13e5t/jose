@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Plus, Sparkles, Trash2 } from 'lucide-react';
+import { Plus, FileText, Trash2 } from 'lucide-react';
 import { generateJWKSet, importJWKSet, isPublicOnlyJWKSet } from '../utils/crypto';
 
 const JWKManagement = ({ 
@@ -147,14 +147,6 @@ const JWKManagement = ({
         </button>
         
         <button
-          onClick={handleBeautify}
-          className="bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white px-6 py-3 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2"
-        >
-          <Sparkles className="w-5 h-5" />
-          Beautify
-        </button>
-        
-        <button
           onClick={handleClear}
           className="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white px-6 py-3 rounded-lg font-medium shadow-sm hover:shadow-md transition-all duration-200 flex items-center gap-2"
         >
@@ -164,14 +156,17 @@ const JWKManagement = ({
       </div>
 
       <div className="space-y-4">
-        <label className="block text-sm font-semibold text-slate-700">
-          JWK Set (JSON Web Key Set)
-        </label>
-        
-        <div className="bg-blue-50 border-l-4 border-blue-400 p-3 rounded-r-lg mb-3">
-          <p className="text-sm text-blue-700 italic">
-            Paste your custom JWK Set JSON below or generate one using the button above
-          </p>
+        <div className="flex justify-between items-center mb-2">
+          <label className="block text-sm font-medium text-slate-700">
+            JWK Set (JSON Web Key Set)
+          </label>
+          <button
+            onClick={handleBeautify}
+            className="text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1"
+          >
+            <FileText className="w-4 h-4" />
+            Beautify
+          </button>
         </div>
         
         <textarea
